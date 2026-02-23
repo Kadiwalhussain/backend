@@ -11,6 +11,13 @@ const app = express();
 app.use(express.json());
 
 // ===============================
+// Multer Configuration
+// ===============================
+const upload = multer({
+  storage: multer.memoryStorage(),
+});
+
+// ===============================
 // Health Check Route
 // ===============================
 app.get('/health', (req, res) => {
@@ -18,13 +25,6 @@ app.get('/health', (req, res) => {
     success: true,
     message: 'Server is running'
   });
-});
-
-// ===============================
-// Multer Configuration
-// ===============================
-const upload = multer({
-  storage: multer.memoryStorage(),
 });
 
 // ===============================
@@ -64,7 +64,6 @@ app.post('/create-post', upload.single("image"), async (req, res) => {
   }
 });
 
-
 // ===============================
 // Get All Posts
 // ===============================
@@ -86,6 +85,5 @@ app.get('/posts', async (req, res) => {
     });
   }
 });
-
 
 module.exports = app;
