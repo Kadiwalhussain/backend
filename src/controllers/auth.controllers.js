@@ -28,6 +28,13 @@ async function registerUser(req, res) {
         const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
             expiresIn: "1h",
         });
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 60 * 60 * 1000,
+        });
+
 
         return res.status(201).json({
             message: "User registered successfully",
@@ -63,6 +70,13 @@ async function loginUser(req, res) {
 
         const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
             expiresIn: "1h",
+        });
+
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 60 * 60 * 1000,
         });
 
         return res.status(200).json({
