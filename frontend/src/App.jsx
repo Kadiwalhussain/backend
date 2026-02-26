@@ -5,6 +5,7 @@ import MainLayout from './components/MainLayout';
 import HomePage from './pages/HomePage';
 import AuthPage from './pages/AuthPage';
 import ArtistDashboard from './pages/ArtistDashboard';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   const { checkAuth, isCheckingAuth } = useAuthStore();
@@ -19,6 +20,12 @@ function App() {
 
   return (
     <BrowserRouter>
+      <Toaster position="top-right" toastOptions={{
+        style: {
+          background: '#333',
+          color: '#fff',
+        },
+      }} />
       <Routes>
         <Route path="/login" element={<AuthPage isLogin={true} />} />
         <Route path="/register" element={<AuthPage isLogin={false} />} />

@@ -9,9 +9,9 @@ export const useAuthStore = create((set) => ({
     checkAuth: async () => {
         try {
             const res = await axiosInstance.get("/auth/check");
-            set({ authUser: res.data.user });
+            set({ authUser: res.data.user, error: null });
         } catch (error) {
-            set({ authUser: null, error: error.response?.data?.message || "Failed to check auth" });
+            set({ authUser: null }); // Don't show global error for auth check failure
         } finally {
             set({ isCheckingAuth: false });
         }
@@ -24,7 +24,8 @@ export const useAuthStore = create((set) => ({
             set({ authUser: res.data.user });
             return true;
         } catch (error) {
-            set({ error: error.response?.data?.message || "Registration failed" });
+            console.error("Registration error:", error.response?.data || error.message);
+            set({ error: error.response?.data?.message || error.message || "Registration failed" });
             return false;
         }
     },
@@ -36,7 +37,8 @@ export const useAuthStore = create((set) => ({
             set({ authUser: res.data.user });
             return true;
         } catch (error) {
-            set({ error: error.response?.data?.message || "Login failed" });
+            console.error("Login error:", error.response?.data || error.message);
+            set({ error: error.response?.data?.message || error.message || "Login failed" });
             return false;
         }
     },

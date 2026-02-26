@@ -100,3 +100,22 @@ export const logout = async (req, res, next) => {
         data: {}
     });
 };
+
+// @desc    Get current logged in user
+// @route   GET /api/auth/check
+// @access  Private
+export const checkAuth = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user.id);
+        res.status(200).json({
+            success: true, user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+};

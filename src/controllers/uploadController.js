@@ -36,6 +36,7 @@ export const uploadFile = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Upload failed', error: error.message });
+        console.error("ImageKit Upload Error:", error);
+        res.status(500).json({ success: false, message: 'Upload failed', error: error.message || error });
     }
 };
