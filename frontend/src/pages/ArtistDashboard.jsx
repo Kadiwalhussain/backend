@@ -32,15 +32,53 @@ const ArtistDashboard = () => {
         }
     }, []);
 
+    const onAudioDropRejected = useCallback((rejectedFiles) => {
+        if (rejectedFiles.length > 0) {
+            const errorCode = rejectedFiles[0].errors[0]?.code;
+            if (errorCode === 'file-invalid-type') {
+                toast.error("Invalid file type. Please select an MP3, WAV, or AAC audio file.");
+            } else if (errorCode === 'too-many-files') {
+                toast.error("Please select only one audio file.");
+            } else {
+                toast.error(rejectedFiles[0].errors[0]?.message || "File rejected. Please try a different file.");
+            }
+        }
+    }, []);
+
+    const onImageDropRejected = useCallback((rejectedFiles) => {
+        if (rejectedFiles.length > 0) {
+            toast.error("Invalid file type. Please select a JPG or PNG image.");
+        }
+    }, []);
+
     const { getRootProps: getAudioProps, getInputProps: getAudioInputProps, isDragActive: audioDrag } = useDropzone({
         onDrop: onAudioDrop,
-        accept: { 'audio/*': [] },
+        onDropRejected: onAudioDropRejected,
+        // Explicitly list all MIME types + extensions — audio/* wildcard is unreliable
+        accept: {
+            'audio/mpeg': ['.mp3'],
+            'audio/mp3': ['.mp3'],
+            'audio/wav': ['.wav'],
+            'audio/wave': ['.wav'],
+            'audio/x-wav': ['.wav'],
+            'audio/aac': ['.aac'],
+            'audio/ogg': ['.ogg'],
+            'audio/flac': ['.flac'],
+            'audio/x-m4a': ['.m4a'],
+            'audio/mp4': ['.m4a', '.mp4'],
+        },
         maxFiles: 1
     });
 
     const { getRootProps: getImageProps, getInputProps: getImageInputProps, isDragActive: imageDrag } = useDropzone({
         onDrop: onImageDrop,
-        accept: { 'image/*': [] },
+        onDropRejected: onImageDropRejected,
+        accept: {
+            'image/jpeg': ['.jpg', '.jpeg'],
+            'image/png': ['.png'],
+            'image/webp': ['.webp'],
+            'image/gif': ['.gif'],
+        },
         maxFiles: 1
     });
 
@@ -83,8 +121,15 @@ const ArtistDashboard = () => {
             const audioRes = await axiosInstance.post('/upload', audioFormData, {
                 timeout: 120000, // 120 seconds for large audio
                 onUploadProgress: (progressEvent) => {
-                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                    setUploadProgress(percentCompleted);
+                    // progressEvent.total can be undefined — guard against NaN
+                    if (progressEvent.total) {
+                        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                        setUploadProgress(Math.min(percentCompleted, 99)); // cap at 99 until server confirms
+                    } else {
+                        // Unknown total — show indeterminate progress by cycling
+                        const mbUploaded = Math.round(progressEvent.loaded / 1024 / 1024 * 10) / 10;
+                        setUploadStatus(`Uploading audio... (${mbUploaded} MB sent)`);
+                    }
                 }
             });
             const uploadedAudioUrl = audioRes.data.data.url;
@@ -164,16 +209,27 @@ const ArtistDashboard = () => {
                             <label className="block text-sm font-bold mb-3">Audio Track *</label>
                             <div
                                 {...getAudioProps()}
-                                className={`border-2 border-dashed rounded-lg p-8 flex flex-col items-center justify-center cursor-pointer transition-colors ${audioDrag ? 'border-primary bg-primary/10' : 'border-[#404040] hover:border-gray-500 bg-[#242424]'}`}
+                                className={`border-2 border-dashed rounded-lg p-8 flex flex-col items-center justify-center cursor-pointer transition-all duration-200 ${audioDrag
+                                        ? 'border-primary bg-primary/10 scale-[1.02]'
+                                        : audioFile
+                                            ? 'border-green-500 bg-green-500/10'
+                                            : 'border-[#404040] hover:border-gray-400 bg-[#242424]'
+                                    }`}
                             >
                                 <input {...getAudioInputProps()} />
-                                <Music className="w-12 h-12 text-textSecondary mb-4" />
+                                <Music className={`w-12 h-12 mb-4 ${audioFile ? 'text-green-400' : 'text-textSecondary'}`} />
                                 {audioFile ? (
-                                    <p className="text-primary font-medium">{audioFile.name}</p>
+                                    <div className="text-center">
+                                        <p className="text-green-400 font-semibold mb-1">✓ {audioFile.name}</p>
+                                        <p className="text-sm text-textSecondary">
+                                            {(audioFile.size / 1024 / 1024).toFixed(2)} MB · {audioFile.type || 'audio file'}
+                                        </p>
+                                        <p className="text-xs text-textSecondary mt-2">Click to change file</p>
+                                    </div>
                                 ) : (
                                     <div className="text-center">
-                                        <p className="font-medium text-white mb-1">Click to select or drop audio file here</p>
-                                        <p className="text-sm text-textSecondary">Supports MP3, WAV, AAC</p>
+                                        <p className="font-medium text-white mb-1">Click to browse or drag & drop</p>
+                                        <p className="text-sm text-textSecondary">MP3, WAV, AAC, OGG, FLAC supported</p>
                                     </div>
                                 )}
                             </div>
