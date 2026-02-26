@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #121212;
+  --color-surface: #181818;
+  --color-surfaceHover: #282828;
+  --color-primary: #1ed760;
+  --color-textPrimary: #ffffff;
+  --color-textSecondary: #b3b3b3;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-textPrimary);
+    font-family: inherit;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Custom scrollbar matching Spotify dark theme */
+  ::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+}
+
+/* Range Input Styling for Audio Player */
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  /* 1rem in tailwind is 4px or h-1 is 0.25rem */
+  background-color: var(--color-surfaceHover);
+  border-radius: 9999px;
+  outline: none;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  background-color: white;
+  border-radius: 9999px;
+  opacity: 0;
+  transition: opacity 150ms ease-in-out;
+  cursor: pointer;
+}
+
+.group:hover input[type=range]::-webkit-slider-thumb {
+  opacity: 1;
+}
+
+.group:hover input[type=range] {
+  background-color: var(--color-primary);
+}
