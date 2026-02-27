@@ -1,39 +1,14 @@
-import express from 'express';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
+const express = require("express");
+const authRoutes = require("./routes/auth.route");
 
 const app = express();
 
-// Middleware
-app.use(cors({
-    origin: [process.env.FRONTEND_URL || 'http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'],
-    credentials: true
-}));
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-app.use(cookieParser());
+app.use(express.json());
 
-import authRoutes from './routes/authRoutes.js';
-import songRoutes from './routes/songRoutes.js';
-import albumRoutes from './routes/albumRoutes.js';
-import userActionRoutes from './routes/userActionRoutes.js';
-import uploadRoutes from './routes/uploadRoutes.js';
-
-// Routes will be mounted here
-app.use('/api/auth', authRoutes);
-app.use('/api/songs', songRoutes);
-app.use('/api/albums', albumRoutes);
-app.use('/api/my', userActionRoutes);
-app.use('/api/upload', uploadRoutes);
-
-app.get('/api/health', (req, res) => {
-    res.status(200).json({ status: 'ok', message: 'Spotify Backend is running' });
+app.get("/", (_req, res) => {
+    res.json({ message: "Backend is running" });
 });
 
-// Global error handler
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ message: 'Internal Server Error', error: err.message });
-});
+app.use("/api/auth", authRoutes);
 
-export default app;
+module.exports = app;
