@@ -8,15 +8,37 @@ const AudioPlayer = () => {
     const [progress, setProgress] = useState(0);
     const [volume, setVolume] = useState(1);
 
+    // When the song changes, load the new src and auto-play once ready
     useEffect(() => {
-        if (currentSong && audioRef.current) {
+        if (!currentSong || !audioRef.current) return;
+
+        const audio = audioRef.current;
+
+        const handleCanPlay = () => {
             if (isPlaying) {
-                audioRef.current.play().catch(e => console.log("Audio play error", e));
-            } else {
-                audioRef.current.pause();
+                audio.play().catch(e => console.log("Audio play error", e));
             }
+        };
+
+        setProgress(0); // reset seek bar for new song
+        audio.load(); // tell the browser to load the new src
+        audio.addEventListener('canplay', handleCanPlay, { once: true });
+
+        return () => {
+            audio.removeEventListener('canplay', handleCanPlay);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentSong]);
+
+    // When isPlaying toggles (same song), just play or pause
+    useEffect(() => {
+        if (!currentSong || !audioRef.current) return;
+        if (isPlaying) {
+            audioRef.current.play().catch(e => console.log("Audio play error", e));
+        } else {
+            audioRef.current.pause();
         }
-    }, [currentSong, isPlaying]);
+    }, [isPlaying]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (audioRef.current) {
