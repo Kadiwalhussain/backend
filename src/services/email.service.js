@@ -45,4 +45,29 @@ async function sendVerificationEmail(userEmail, name) {
     await sendEmail(userEmail, subject, text, html);
 }
 
-module.exports = { sendVerificationEmail };
+async function sendOtpEmail(userEmail, name, otpCode) {
+    const subject = "Your OTP for Backend Ledger";
+    const text = `Hello ${name},\n\nYour OTP is ${otpCode}. It expires in 10 minutes.\n\nIf you did not request this, ignore this email.\n\nBackend Ledger Team`;
+    const html = `
+        <h2>Hello ${name},</h2>
+        <p>Your OTP is:</p>
+        <p style="font-size: 24px; font-weight: 700; letter-spacing: 6px;">${otpCode}</p>
+        <p>This code expires in <strong>10 minutes</strong>.</p>
+        <p>If you did not request this, please ignore this email.</p>
+    `;
+    await sendEmail(userEmail, subject, text, html);
+}
+
+// Transaction notification email
+async function sendTransactionEmail(userEmail, name, amount, toAccount) {
+    const subject = 'Transaction Successful - Backend Ledger';
+    const text = `Hello ${name},\n\nYour transfer of ${amount} to account ${toAccount} was completed successfully.\n\nBest regards,\nBackend Ledger Team`;
+    const html = `
+        <h2>Hello ${name},</h2>
+        <p>Your transfer of <strong>${amount}</strong> to account <strong>${toAccount}</strong> was completed successfully.</p>
+        <p>Best regards,<br/>Backend Ledger Team</p>
+    `;
+    await sendEmail(userEmail, subject, text, html);
+}
+
+module.exports = { sendVerificationEmail, sendOtpEmail, sendTransactionEmail };

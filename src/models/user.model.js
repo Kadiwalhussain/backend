@@ -23,6 +23,30 @@ const userSchema = new mongoose.Schema({
         minlength: [6, "Password must be at least 6 characters long"],
         maxlength: [128, "Password cannot exceed 128 characters"],
         select: false
+    },
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+    otpHash: {
+        type: String,
+        default: null,
+        select: false
+    },
+    otpExpiresAt: {
+        type: Date,
+        default: null,
+        select: false
+    },
+    otpAttempts: {
+        type: Number,
+        default: 0,
+        select: false
+    },
+    otpLockUntil: {
+        type: Date,
+        default: null,
+        select: false
     }
 }, {
     timestamps: true
